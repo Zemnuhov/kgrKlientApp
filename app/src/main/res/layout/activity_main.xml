@@ -7,9 +7,8 @@
     tools:context=".MainActivity">
 
 
-    <fragment
-        android:id="@+id/fragment"
-        android:name="com.example.myapplication.GraphFragment"
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/fragmentOne"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </androidx.appcompat.widget.LinearLayoutCompat>

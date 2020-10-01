@@ -1,40 +1,23 @@
 package com.example.myapplication;
 
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
-
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.fragment.app.Fragment;
-
-public class MainActivity extends Activity {
+import androidx.appcompat.app.AppCompatActivity;
 
 
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BluetoothConnection connection=new BluetoothConnection();
+        BluetoothFragment bluetoothFragment=BluetoothFragment.newInstance(getApplicationContext());
+        android.app.FragmentTransaction transaction=getFragmentManager().beginTransaction();
 
-        /*FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        GraphFragment fragment = new GraphFragment();
-        fragmentTransaction.add(R.id.fragment, fragment);
-        fragmentTransaction.commit();*/
-
-
-
+        transaction.replace(R.id.fragmentOne, bluetoothFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
 
