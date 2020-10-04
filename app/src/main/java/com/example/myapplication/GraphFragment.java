@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
 import android.app.Fragment;
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,16 @@ import com.jjoe64.graphview.GraphView;
 
 public class GraphFragment extends Fragment {
 
+    Context context;
+    BluetoothDevice device;
+
+    public static GraphFragment newInstance(Context context,BluetoothDevice device) {
+        GraphFragment fragment = new GraphFragment();
+        Bundle args = new Bundle();
+        fragment.device=device;
+        fragment.context=context;
+        return fragment;
+    }
 
 
 
@@ -31,7 +43,7 @@ public class GraphFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 SerialStart beg=new SerialStart();
-                beg.beginGraph(graph);
+                beg.beginGraph(graph,device,context);
             }
         });
 

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -70,6 +71,21 @@ public class BluetoothFragment extends Fragment {
             availlableBluetoothAdapter=new ArrayAdapter(context, layout.simple_list_item_1,
                     availlableBluetoothList);
             deviceList.setAdapter(availlableBluetoothAdapter);
+            deviceList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String  itemValue = (String) deviceList.getItemAtPosition(position);
+                    String MAC = itemValue.substring(itemValue.length() - 17); // Вычленяем MAC-адрес
+                    BluetoothDevice device = bluetoothAdapter.getRemoteDevice(MAC);
+                    GraphFragment graphFragment=GraphFragment.newInstance(context,device);
+                    android.app.FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragmentOne, graphFragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            });
+
         }
     }
+
 }

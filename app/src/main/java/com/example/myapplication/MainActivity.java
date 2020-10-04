@@ -14,7 +14,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         BluetoothFragment bluetoothFragment=BluetoothFragment.newInstance(getApplicationContext());
         android.app.FragmentTransaction transaction=getFragmentManager().beginTransaction();
-
         transaction.replace(R.id.fragmentOne, bluetoothFragment);
         transaction.addToBackStack(null);
         transaction.commit();
