@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.fragmentOne, bluetoothFragment);
         transaction.addToBackStack(null);
         transaction.commit();
+
     }
 }
 

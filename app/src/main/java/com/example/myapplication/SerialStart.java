@@ -3,35 +3,70 @@ package com.example.myapplication;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.os.Environment;
 import android.os.Handler;
-import android.view.View;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Random;
+import java.io.OutputStreamWriter;
 import java.util.UUID;
 
 public class SerialStart {
-    private Runnable mTimer2;
+    private final String UUID_STRING_WELL_KNOWN_SPP = "00001101-0000-1000-8000-00805F9B34FB";
     private final Handler mHandler = new Handler();
-    float i = 0;
-    int count=0;
-    BluetoothDevice device;
+
+    private Runnable mTimer2;
+    private float i = 0;
+    private int count=0;
+    private BluetoothDevice device;
     private UUID myUUID;
-    final String UUID_STRING_WELL_KNOWN_SPP = "00001101-0000-1000-8000-00805F9B34FB";
-    ThreadConnected myThreadConnected;
+    private ThreadConnected myThreadConnected;
     private StringBuilder sb = new StringBuilder();
-    ThreadConnectBTdevice threadConnectBTdevice;
-    GraphView graph;
+    private ThreadConnectBTdevice threadConnectBTdevice;
+    private GraphView graph;
     private String sbprint;
-    double point;
-    Context context;
+    private double point;
+    private Context context;
+    private boolean recFlag;
+
+    OutputStreamWriter myOutWriter;
+
+    void recFlagStart(){
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            File file = new File(context.getExternalFilesDir(null),"Log.txt");
+
+            System.out.println(file.getAbsolutePath());
+            File fhandle = new File(file.getAbsolutePath());
+            if (!fhandle.getParentFile().exists()) {
+                fhandle.getParentFile().mkdirs();
+            }
+            try {
+                fhandle.createNewFile();
+                myOutWriter=new OutputStreamWriter(new FileOutputStream(fhandle));
+                recFlag=true;
+            } catch (IOException e) {
+                Toast.makeText(context,"Поток записи не открыт!",Toast.LENGTH_SHORT);
+            }
+        }
+
+    }
+    void recFlagStop(){
+        recFlag=false;
+        try {
+            myOutWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void beginGraph(GraphView graph, BluetoothDevice device, final Context context) {
         this.device = device;
@@ -41,6 +76,7 @@ public class SerialStart {
         this.graph=graph;
         sbprint="0";
         this.context=context;
+
         final LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, 0),
         });
@@ -48,17 +84,24 @@ public class SerialStart {
         mTimer2 = new Runnable() {
             @Override
             public void run() {
-                    i += 0.02;
+                    i += 0.001;
                     series.appendData(new DataPoint(i, 12000-point), true, 10000);
-                    mHandler.postDelayed(this, 50);
-                    if(12000-point<0){
-                        Toast.makeText(context,"Проверьте соединение!",Toast.LENGTH_SHORT).show();
+                    mHandler.postDelayed(this, 20);
+                    if(recFlag){
+                        try {
+                            myOutWriter.write(String.valueOf((int)point)+"\n");
+                        } catch (IOException e) {
+                            System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+                        }
                     }
 
             }
         };
         mHandler.postDelayed(mTimer2, 1000);
     }
+
+
+
 
     private class ThreadConnectBTdevice extends Thread { // Поток для коннекта с Bluetooth
         private BluetoothSocket bluetoothSocket = null;
@@ -97,7 +140,6 @@ public class SerialStart {
     private class ThreadConnected extends Thread {    // Поток - приём и отправка данных
         private final InputStream connectedInputStream;
         private final OutputStream connectedOutputStream;
-        //private String sbprint;
         public ThreadConnected(BluetoothSocket socket) {
             InputStream in = null;
             OutputStream out = null;

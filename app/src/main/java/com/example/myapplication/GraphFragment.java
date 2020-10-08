@@ -15,6 +15,8 @@ public class GraphFragment extends Fragment {
 
     Context context;
     BluetoothDevice device;
+    Button startRec;
+    Button stopRec;
 
     public static GraphFragment newInstance(Context context,BluetoothDevice device) {
         GraphFragment fragment = new GraphFragment();
@@ -31,21 +33,36 @@ public class GraphFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.graph_fragment, container, false);
-        final GraphView graph = (GraphView) view.findViewById(R.id.graph);
 
+        startRec=view.findViewById(R.id.start_rec);
+        stopRec=view.findViewById(R.id.stop_rec);
+
+
+        final GraphView graph = (GraphView) view.findViewById(R.id.graph);
+        graph.getViewport().setMinY(0);
+        graph.getViewport().setMaxY(13000);
         graph.getViewport().setScalable(true);
         graph.getViewport().setScrollable(true);
-        graph.getViewport().setScalableY(true);
-        graph.getViewport().setScrollableY(true);
+        //graph.getViewport().setScalableY(true);
+        //graph.getViewport().setScrollableY(true);
+        final SerialStart beg=new SerialStart();
+        beg.beginGraph(graph,device,context);
 
-        Button start=view.findViewById(R.id.button);
-        start.setOnClickListener(new View.OnClickListener() {
+        startRec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SerialStart beg=new SerialStart();
-                beg.beginGraph(graph,device,context);
+                beg.recFlagStart();
             }
         });
+
+        stopRec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                beg.recFlagStop();
+            }
+        });
+
+
 
 
 
