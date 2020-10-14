@@ -1,77 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/graph"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@+id/button"
-        android:layout_weight="1"
-        tools:layout_editor_absoluteX="0dp" />
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_red"
+        android:orientation="vertical">
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graph"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toTopOf="@+id/button"
             android:layout_weight="1"
-            android:background="#FF0000"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_blue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#001AFF"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_green"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#00FF19"/>
-
-
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/start_rec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:height="30dp"
-            android:text="Начать запись"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="683dp"
-            android:layout_weight="1"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/stop_rec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:height="30dp"
-            android:text="Остановить запись"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="683dp"
-            android:layout_weight="1"/>
+            tools:layout_editor_absoluteX="0dp" />
 
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/start_rec_and_stop"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/adjust"
+            android:layout_gravity="start|bottom"
+            android:layout_marginLeft="16dp"
+            android:layout_marginBottom="90dp" />
 
-</androidx.appcompat.widget.LinearLayoutCompat>
+         <com.google.android.material.floatingactionbutton.FloatingActionButton
+             android:id="@+id/switch_color"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="start|bottom"
+             android:layout_marginLeft="16dp"
+             android:layout_marginBottom="16dp" />
+
+
+
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

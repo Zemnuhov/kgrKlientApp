@@ -100,7 +100,7 @@ public class SerialStart implements Serializable{
         };
         mHandler.postDelayed(threadVisualGraph, 1000);
     }
-    void recFlagStart(){
+    public void recFlagStart(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File file = new File(context.getExternalFilesDir(null),"Log.txt");
@@ -121,7 +121,7 @@ public class SerialStart implements Serializable{
 
     }
 
-    void recFlagStop(){
+    public void recFlagStop(){
         recFlag=false;
         try {
             myOutWriter.close();

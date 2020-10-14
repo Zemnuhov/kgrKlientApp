@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication.fragment.BluetoothFragment;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.fragmentOne, bluetoothFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-
     }
 }
 
