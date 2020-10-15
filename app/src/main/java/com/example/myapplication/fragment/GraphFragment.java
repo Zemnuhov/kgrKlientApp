@@ -58,13 +58,13 @@ public class GraphFragment extends Fragment {
 
 
         final GraphView graph = (GraphView) view.findViewById(R.id.graph);
-        graph.getViewport().setYAxisBoundsManual(true);
+        //graph.getViewport().setYAxisBoundsManual(true);
         graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(12000);
-        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMaxY(255);
+        //graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setScalable(true);
         graph.getViewport().setScrollable(true);
-        graph.getViewport().setScalableY(false);
+        graph.getViewport().setScalableY(true);
         graph.getViewport().setScrollableY(true);
         graph.setBackgroundColor(Color.WHITE);
 

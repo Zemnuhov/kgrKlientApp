@@ -71,19 +71,19 @@ public class SerialStart implements Serializable{
             public void run() {
                 i += 0.0001;
                 //point=12000-point;
-                series.appendData(new DataPoint(i, 12000-point), true, 10000);
-                graph.getViewport().setMinY(12000-point-2000);
-                graph.getViewport().setMaxY(12000-point+2000);
+                series.appendData(new DataPoint(i, point), true, 10000);
+                //graph.getViewport().setMinY(point-20);
+                //graph.getViewport().setMaxY(point+20);
 
                 series.setOnDataPointTapListener(new OnDataPointTapListener() {
                     @Override
                     public void onTap(Series series, DataPointInterface dataPoint) {
                         seriesPoint.setColor(color);
-                        seriesPoint.appendData(new DataPoint(i,12000-point),true,10000);
+                        seriesPoint.appendData(new DataPoint(i,point),true,10000);
                         pointFlag=colorId;
                     }
                 });
-                mHandler.postDelayed(this, 20);
+                mHandler.postDelayed(this, 5);
                 if(recFlag){
                     try {
                         myOutWriter.write(String.valueOf((int)point)+"\t"+String.valueOf(pointFlag)+"\n");
@@ -164,13 +164,15 @@ public class SerialStart implements Serializable{
                     if (endOfLineIndex > 0) {
                         sbprint = sb.substring(0, endOfLineIndex);
                         sb.delete(0, sb.length());
-                        System.out.println(sbprint);
+
                         if(count<10){
                             temp+=Double.parseDouble(sbprint);
                             count++;
                         }
                         else {
-                            point=temp/10;
+                            temp=12000-temp/10;
+                            point=((temp-0)/(12000-0))*(255-0);
+                            System.out.println(point);
                             count=0;
                             temp=0;
                         }
