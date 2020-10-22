@@ -1,6 +1,6 @@
 package com.example.myapplication.fragment;
 
-import android.app.Fragment;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -16,6 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.myapplication.R;
 
@@ -130,7 +133,7 @@ public class BluetoothFragment extends Fragment {
             }
             if(success) {  // Если законнектились, тогда открываем панель с кнопками и запускаем поток приёма и отправки данных
                 GraphFragment graphFragment=GraphFragment.newInstance(context,bluetoothSocket);
-                android.app.FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                FragmentTransaction transaction=getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentOne, graphFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();

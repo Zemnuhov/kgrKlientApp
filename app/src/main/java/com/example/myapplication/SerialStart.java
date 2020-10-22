@@ -7,6 +7,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.widget.Toast;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.DataPointInterface;
@@ -22,6 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class SerialStart implements Serializable{
     private final Handler mHandler = new Handler();
@@ -38,14 +43,19 @@ public class SerialStart implements Serializable{
     private Context context;
     private boolean recFlag;
     private int pointFlag;
-    private int color;
-    private int colorId;
     private boolean flagExceptionWriteFile;
     private boolean bind;
     private int minBind;
     private int maxBind;
+    private boolean connectFlag;
 
-    OutputStreamWriter myOutWriter;
+    private OutputStreamWriter myOutWriter;
+
+    private DialogFragment writeLableDialog;
+    private FragmentManager childManager;
+
+    final LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{});
+    final PointsGraphSeries<DataPoint> seriesPoint = new PointsGraphSeries<>(new DataPoint[]{});
 
     public void bindingData(boolean bind, int maxBind, int minBind){
         this.bind=bind;
@@ -53,32 +63,35 @@ public class SerialStart implements Serializable{
         this.maxBind=maxBind;
     }
 
-    public void setColor(int color,int colorId){
-        this.color=color;
-        this.colorId=colorId;
-    }
-
-
-    public void beginGraph(final GraphView graph, BluetoothSocket bluetoothSocket, final Context context) {
+    public void beginGraph(final GraphView graph, BluetoothSocket bluetoothSocket, final Context context, final DialogFragment writeLableDialog, final FragmentManager childManager) {
         myThreadConnected=new ThreadConnected(bluetoothSocket);
         myThreadConnected.start();
         this.graph=graph;
         this.context=context;
-        color=Color.RED;
         pointFlag=0;
-        colorId=1;
         flagExceptionWriteFile=false;
         bind=false;
+        this.writeLableDialog=writeLableDialog;
+        this.childManager=childManager;
 
-        final LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{});
-        final PointsGraphSeries<DataPoint> seriesPoint = new PointsGraphSeries<>(new DataPoint[]{});
         graph.addSeries(series);
         graph.addSeries(seriesPoint);
 
+        series.setColor(Color.BLACK);
+        seriesPoint.setColor(Color.GRAY);
 
+        threadGraph();
+
+    }
+
+    private void threadGraph(){
         threadVisualGraph = new Runnable() {
             @Override
             public void run() {
+                if(!connectFlag){
+                    Toast.makeText(context,"Потеряно соединение с устройством!",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 i += 0.0001;
                 series.appendData(new DataPoint(i, point), true, 10000);
                 if(bind) {
@@ -88,9 +101,9 @@ public class SerialStart implements Serializable{
                 series.setOnDataPointTapListener(new OnDataPointTapListener() {
                     @Override
                     public void onTap(Series series, DataPointInterface dataPoint) {
-                        seriesPoint.setColor(color);
+                        writeLableDialog.show(childManager,"writeble");
                         seriesPoint.appendData(new DataPoint(i,point),true,10000);
-                        pointFlag=colorId;
+                        pointFlag=1;
                     }
                 });
                 mHandler.postDelayed(this, 5);
@@ -110,19 +123,23 @@ public class SerialStart implements Serializable{
         };
         mHandler.postDelayed(threadVisualGraph, 1000);
     }
+
     public void recFlagStart(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File file = new File(context.getExternalFilesDir(null),"Log.txt");
-
-            System.out.println(file.getAbsolutePath());
             File fhandle = new File(file.getAbsolutePath());
             if (!fhandle.getParentFile().exists()) {
                 fhandle.getParentFile().mkdirs();
             }
             try {
                 fhandle.createNewFile();
-                myOutWriter=new OutputStreamWriter(new FileOutputStream(fhandle));
+                myOutWriter=new OutputStreamWriter(new FileOutputStream(fhandle,true));
+
+                Date dateNow = new Date();
+                SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                myOutWriter.write("B-"+formatForDateNow.format(dateNow)+"\n");
+
                 recFlag=true;
             } catch (IOException e) {
                 Toast.makeText(context,"Поток записи не открыт!",Toast.LENGTH_SHORT);
@@ -134,15 +151,15 @@ public class SerialStart implements Serializable{
     public void recFlagStop(){
         recFlag=false;
         try {
+            Date dateNow = new Date();
+            SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            myOutWriter.write("E-"+formatForDateNow.format(dateNow)+"\n");
+
             myOutWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-
-
 
     private class ThreadConnected extends Thread implements Serializable {    // Поток - приём и отправка данных
         private final InputStream connectedInputStream;
@@ -163,6 +180,7 @@ public class SerialStart implements Serializable{
 
         @Override
         public void run() { // Приём данных
+            connectFlag=true;
             double temp=0;
             while (true) {
                 try {
@@ -188,6 +206,7 @@ public class SerialStart implements Serializable{
                         }
                     }
                 } catch (IOException e) {
+                    connectFlag=false;
                     break;
                 }
             }

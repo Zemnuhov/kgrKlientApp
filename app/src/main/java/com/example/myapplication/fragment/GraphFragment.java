@@ -1,12 +1,17 @@
 package com.example.myapplication.fragment;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
+
+
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +28,7 @@ import com.jjoe64.graphview.GraphView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GraphFragment extends Fragment{
+public class GraphFragment extends Fragment {
 
     Context context;
     FloatingActionButton startRec;
@@ -52,7 +57,6 @@ public class GraphFragment extends Fragment{
         View view=inflater.inflate(R.layout.graph_fragment, container, false);
 
         startRec=view.findViewById(R.id.start_rec_and_stop);
-        switchColorButton=view.findViewById(R.id.switch_color);
         settingButton=view.findViewById(R.id.setting_button);
 
 
@@ -71,9 +75,13 @@ public class GraphFragment extends Fragment{
         graph.getViewport().setScalableY(true);
         graph.getViewport().setScrollableY(true);
         graph.setBackgroundColor(Color.WHITE);
+        graph.getGridLabelRenderer().setGridColor(Color.WHITE);
+
+        DialogFragment writeLableDialog=new WriteLableDialog();
+        FragmentManager childManager=getChildFragmentManager();
 
         final SerialStart serialStart=new SerialStart();
-        serialStart.beginGraph(graph,bluetoothSocket,context);
+        serialStart.beginGraph(graph,bluetoothSocket,context,writeLableDialog,childManager);
 
         settingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,18 +104,6 @@ public class GraphFragment extends Fragment{
                     recFlag=false;
                     Toast.makeText(context,"Запись остановлена",Toast.LENGTH_LONG).show();
                 }
-            }
-        });
-
-        switchColorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(colorCount==3){
-                    colorCount=0;
-                }
-                serialStart.setColor(color.get(colorCount),colorCount+1);
-                switchColorButton.setBackgroundTintList(ColorStateList.valueOf(color.get(colorCount)));
-                colorCount++;
             }
         });
         return view;

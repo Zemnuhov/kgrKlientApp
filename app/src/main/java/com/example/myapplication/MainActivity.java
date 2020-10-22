@@ -1,6 +1,9 @@
 package com.example.myapplication;
 
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BluetoothFragment bluetoothFragment=BluetoothFragment.newInstance(getApplicationContext());
-        android.app.FragmentTransaction transaction=getFragmentManager().beginTransaction();
+        FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragmentOne, bluetoothFragment);
         transaction.addToBackStack(null);
         transaction.commit();
