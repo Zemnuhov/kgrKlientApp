@@ -1,5 +1,6 @@
 package com.example.myapplication.fragment;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+
 import com.example.myapplication.R;
 import com.example.myapplication.SerialStart;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -21,14 +23,15 @@ import com.jjoe64.graphview.GraphView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GraphFragment extends Fragment {
+public class GraphFragment extends Fragment{
 
     Context context;
     FloatingActionButton startRec;
-    BluetoothSocket bluetoothSocket;
     FloatingActionButton switchColorButton;
-    boolean recFlag;
+    FloatingActionButton settingButton;
+    BluetoothSocket bluetoothSocket;
     ArrayList<Integer> color=new ArrayList<Integer>(Arrays.asList(Color.RED,Color.BLUE,Color.GREEN));
+    boolean recFlag;
     int colorCount;
 
 
@@ -49,8 +52,9 @@ public class GraphFragment extends Fragment {
         View view=inflater.inflate(R.layout.graph_fragment, container, false);
 
         startRec=view.findViewById(R.id.start_rec_and_stop);
-
         switchColorButton=view.findViewById(R.id.switch_color);
+        settingButton=view.findViewById(R.id.setting_button);
+
 
         recFlag=false;
         colorCount=0;
@@ -70,6 +74,15 @@ public class GraphFragment extends Fragment {
 
         final SerialStart serialStart=new SerialStart();
         serialStart.beginGraph(graph,bluetoothSocket,context);
+
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment dialogFragment=SettingDialog.newInstance(graph,serialStart);
+                dialogFragment.show(getChildFragmentManager(),"setting");
+            }
+        });
+
 
         startRec.setOnClickListener(new View.OnClickListener() {
             @Override

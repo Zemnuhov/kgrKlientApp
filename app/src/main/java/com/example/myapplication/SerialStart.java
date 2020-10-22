@@ -41,8 +41,17 @@ public class SerialStart implements Serializable{
     private int color;
     private int colorId;
     private boolean flagExceptionWriteFile;
+    private boolean bind;
+    private int minBind;
+    private int maxBind;
 
     OutputStreamWriter myOutWriter;
+
+    public void bindingData(boolean bind, int maxBind, int minBind){
+        this.bind=bind;
+        this.minBind=minBind;
+        this.maxBind=maxBind;
+    }
 
     public void setColor(int color,int colorId){
         this.color=color;
@@ -59,6 +68,7 @@ public class SerialStart implements Serializable{
         pointFlag=0;
         colorId=1;
         flagExceptionWriteFile=false;
+        bind=false;
 
         final LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{});
         final PointsGraphSeries<DataPoint> seriesPoint = new PointsGraphSeries<>(new DataPoint[]{});
@@ -70,11 +80,11 @@ public class SerialStart implements Serializable{
             @Override
             public void run() {
                 i += 0.0001;
-                //point=12000-point;
                 series.appendData(new DataPoint(i, point), true, 10000);
-                //graph.getViewport().setMinY(point-20);
-                //graph.getViewport().setMaxY(point+20);
-
+                if(bind) {
+                    graph.getViewport().setMinY(point-minBind);
+                    graph.getViewport().setMaxY(point+maxBind);
+                }
                 series.setOnDataPointTapListener(new OnDataPointTapListener() {
                     @Override
                     public void onTap(Series series, DataPointInterface dataPoint) {
@@ -172,7 +182,7 @@ public class SerialStart implements Serializable{
                         else {
                             temp=12000-temp/10;
                             point=((temp-0)/(12000-0))*(255-0);
-                            System.out.println(point);
+                            //System.out.println(point);
                             count=0;
                             temp=0;
                         }
