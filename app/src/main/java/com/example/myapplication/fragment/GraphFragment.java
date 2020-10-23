@@ -8,15 +8,11 @@ import androidx.fragment.app.FragmentManager;
 
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 
@@ -77,11 +73,11 @@ public class GraphFragment extends Fragment {
         graph.setBackgroundColor(Color.WHITE);
         graph.getGridLabelRenderer().setGridColor(Color.WHITE);
 
-        DialogFragment writeLableDialog=new WriteLableDialog();
+
         FragmentManager childManager=getChildFragmentManager();
 
         final SerialStart serialStart=new SerialStart();
-        serialStart.beginGraph(graph,bluetoothSocket,context,writeLableDialog,childManager);
+        serialStart.beginGraph(graph,bluetoothSocket,context,childManager);
 
         settingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,11 +92,13 @@ public class GraphFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(!recFlag) {
-                    serialStart.recFlagStart();
+                    serialStart.startRecodingLine();
+                    serialStart.startRecodingPoint();
                     recFlag=true;
                     Toast.makeText(context,"Начало записи",Toast.LENGTH_LONG).show();
                 }else {
-                    serialStart.recFlagStop();
+                    serialStart.stopRecodingLine();
+                    serialStart.stopRecodingPoint();
                     recFlag=false;
                     Toast.makeText(context,"Запись остановлена",Toast.LENGTH_LONG).show();
                 }
