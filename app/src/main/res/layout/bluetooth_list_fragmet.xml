@@ -12,8 +12,10 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/refresh_button"
+        android:background="@drawable/round_button"
         android:text="Обновить"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"/>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

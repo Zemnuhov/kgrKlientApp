@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.myapplication.R;
 import com.example.myapplication.SerialStart;
+import com.example.myapplication.ThreadConnectedGetData;
 import com.jjoe64.graphview.GraphView;
 
 public class SettingDialog extends DialogFragment {
@@ -28,14 +29,17 @@ public class SettingDialog extends DialogFragment {
     SeekBar seekBarEnd;
     Switch dataSwitch;
     Switch autoSwitch;
+    Switch modeSwitch;
     GraphView graph;
     SerialStart serialStart;
     Button setParameter;
+    ThreadConnectedGetData threadConnected;
 
 
-    public static SettingDialog newInstance(GraphView graph, SerialStart serialStart) {
+    public static SettingDialog newInstance(GraphView graph, SerialStart serialStart, ThreadConnectedGetData threadConnected) {
         Bundle args = new Bundle();
         SettingDialog fragment = new SettingDialog();
+        fragment.threadConnected=threadConnected;
         fragment.graph = graph;
         fragment.serialStart=serialStart;
         return fragment;
@@ -55,6 +59,7 @@ public class SettingDialog extends DialogFragment {
         dataSwitch=view.findViewById(R.id.data_switch);
         autoSwitch=view.findViewById(R.id.auto_switch);
         setParameter=view.findViewById(R.id.ok_button);
+        modeSwitch=view.findViewById(R.id.mode_switch);
 
         begin.setText("0");
         end.setText("0");
@@ -110,37 +115,51 @@ public class SettingDialog extends DialogFragment {
         setParameter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!dataSwitch.isChecked() && !autoSwitch.isChecked()){
-                    graph.getViewport().setYAxisBoundsManual(true);
-                    graph.getViewport().setMinY(seekBarBegin.getProgress());
-                    graph.getViewport().setMaxY(seekBarEnd.getProgress());
-                    graph.getViewport().setXAxisBoundsManual(true);
-                    graph.getViewport().setScalable(true);
-                    graph.getViewport().setScrollable(true);
-                    graph.getViewport().setScalableY(false);
-                    graph.getViewport().setScrollableY(false);
-                    serialStart.bindingData(false,0,0);
-                }else if (dataSwitch.isChecked() && !autoSwitch.isChecked()){
-                    graph.getViewport().setYAxisBoundsManual(true);
-                    graph.getViewport().setMinY(0);
-                    graph.getViewport().setMaxY(255);
-                    graph.getViewport().setXAxisBoundsManual(true);
-                    graph.getViewport().setScalable(true);
-                    graph.getViewport().setScrollable(true);
-                    graph.getViewport().setScalableY(false);
-                    graph.getViewport().setScrollableY(false);
-                    serialStart.bindingData(true,seekBarBegin.getProgress(),seekBarEnd.getProgress());
-                }else if (!dataSwitch.isChecked() && autoSwitch.isChecked()){
-                    graph.getViewport().setYAxisBoundsManual(false);
-                    graph.getViewport().setXAxisBoundsManual(false);
-                    graph.getViewport().setMinY(0);
-                    graph.getViewport().setMaxY(255);
-                    graph.getViewport().setScalable(true);
-                    graph.getViewport().setScrollable(true);
-                    graph.getViewport().setScalableY(true);
-                    graph.getViewport().setScrollableY(true);
+                if(!modeSwitch.isChecked()) {
+                    if (!dataSwitch.isChecked() && !autoSwitch.isChecked()) {
+                        graph.getViewport().setYAxisBoundsManual(true);
+                        graph.getViewport().setMinY(seekBarBegin.getProgress());
+                        graph.getViewport().setMaxY(seekBarEnd.getProgress());
+                        graph.getViewport().setXAxisBoundsManual(true);
+                        graph.getViewport().setScalable(true);
+                        graph.getViewport().setScrollable(true);
+                        graph.getViewport().setScalableY(false);
+                        graph.getViewport().setScrollableY(false);
+                        serialStart.bindingData(false, 0, 0);
+                    } else if (dataSwitch.isChecked() && !autoSwitch.isChecked()) {
+                        graph.getViewport().setYAxisBoundsManual(true);
+                        graph.getViewport().setMinY(0);
+                        graph.getViewport().setMaxY(255);
+                        graph.getViewport().setXAxisBoundsManual(true);
+                        graph.getViewport().setScalable(true);
+                        graph.getViewport().setScrollable(true);
+                        graph.getViewport().setScalableY(false);
+                        graph.getViewport().setScrollableY(false);
+                        serialStart.bindingData(true, seekBarBegin.getProgress(), seekBarEnd.getProgress());
+                    } else if (!dataSwitch.isChecked() && autoSwitch.isChecked()) {
+                        graph.getViewport().setYAxisBoundsManual(false);
+                        graph.getViewport().setXAxisBoundsManual(false);
+                        graph.getViewport().setMinY(0);
+                        graph.getViewport().setMaxY(255);
+                        graph.getViewport().setScalable(true);
+                        graph.getViewport().setScrollable(true);
+                        graph.getViewport().setScalableY(true);
+                        graph.getViewport().setScrollableY(true);
 
-                    serialStart.bindingData(false,0,0);
+                        serialStart.bindingData(false, 0, 0);
+                    }
+                    threadConnected.setMode((byte) 0);
+                }else {
+                    graph.getViewport().setYAxisBoundsManual(true);
+                    graph.getViewport().setXAxisBoundsManual(true);
+                    graph.getViewport().setMinY(-1);
+                    graph.getViewport().setMaxY(1);
+                    graph.getViewport().setScalable(true);
+                    graph.getViewport().setScrollable(true);
+                    graph.getViewport().setScalableY(false);
+                    graph.getViewport().setScrollableY(false);
+                    threadConnected.setMode((byte) 1);
+                    serialStart.bindingData(false, 0, 0);
                 }
             }
         });

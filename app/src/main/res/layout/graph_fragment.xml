@@ -7,19 +7,34 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/linearLayoutCompat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <com.jjoe64.graphview.GraphView
             android:id="@+id/graph"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintBottom_toTopOf="@+id/button"
             android:layout_weight="1"
+            app:layout_constraintBottom_toTopOf="@+id/button"
             tools:layout_editor_absoluteX="0dp" />
 
 
     </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Среднее значение:"
+            android:textSize="20dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Текущее значение:"
+            android:textSize="20dp"
+            android:layout_marginTop="30dp"/>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/setting_button"
             android:backgroundTint="@color/colorPrimary"
