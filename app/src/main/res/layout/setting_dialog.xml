@@ -69,14 +69,6 @@
         android:layout_margin="10dp"
         android:text="Автомасштаб"/>
 
-    <Switch
-        android:id="@+id/mode_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Вид реакции"
-        android:textOn="Фазическая"
-        android:textOff="Фазическая и тоническая" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/ok_button"

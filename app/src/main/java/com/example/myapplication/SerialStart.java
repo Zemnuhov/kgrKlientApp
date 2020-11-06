@@ -6,6 +6,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
@@ -27,44 +28,79 @@ import static android.content.Context.MODE_PRIVATE;
 public class SerialStart implements Serializable {
     private final Handler mHandler = new Handler();
     private Runnable threadVisualGraph;
-
-
     private int i = 0;
-
     private double point;
     private boolean recFlag;
     private int pointCount;
     private boolean bind;
     private int minBind;
     private int maxBind;
-
     private boolean connectFlag;
-
     private ThreadConnectedGetData threadConnected;
-
     private GraphView graph;
-
     private Context context;
-
     public RecodingFileClass lineRecoding;
-
     public RecodingFileClass pointRecoding;
     private FragmentManager childManager;
-    final LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[]{});
+
+
+    final PointsGraphSeries<DataPoint> seriesNormal = new PointsGraphSeries<>(new DataPoint[]{});
+    final PointsGraphSeries<DataPoint> seriesSplash = new PointsGraphSeries<>(new DataPoint[]{});
     final PointsGraphSeries<DataPoint> seriesPoint = new PointsGraphSeries<>(new DataPoint[]{});
+
+
     private SharedPreferences sPref;
-    public SerialStart(final GraphView graph, ConnectBluetooth connectDevice, final Context context, final FragmentManager childManager) {
+    TextView textLongAVG;
+    TextView textNowAVG;
+    double longAvg;
+
+    double nowAvg;
+
+    public void setLongAvg(double longAvg) {
+        this.longAvg = longAvg;
+    }
+
+    public void setNowAvg(double nowAvg) {
+        this.nowAvg = nowAvg;
+    }
+
+
+
+    public SerialStart(final GraphView graph, ConnectBluetooth connectDevice, final Context context, final FragmentManager childManager, TextView longAVG, TextView nowAVG) {
         threadConnected = new ThreadConnectedGetData(connectDevice.getBluetoothSocket(),this,context);
         threadConnected.start();
+        this.textLongAVG = longAVG;
+        this.textNowAVG = nowAVG;
         this.graph = graph;
         this.context = context;
         pointCount = 0;
         bind = false;
         this.childManager = childManager;
-        graph.addSeries(series);
+        graph.addSeries(seriesNormal);
+        graph.addSeries(seriesSplash);
         graph.addSeries(seriesPoint);
-        series.setColor(Color.BLACK);
+        //seriesSplash.setThickness(8);
+        seriesSplash.setSize(8);
+        seriesSplash.setColor(Color.RED);
+        seriesNormal.setColor(Color.BLACK);
+        //seriesNormal.setThickness(8);
+        seriesNormal.setSize(8);
         seriesPoint.setColor(Color.GRAY);
+    }
+
+    public void setTextLongAVG() {
+        textLongAVG.setText("Среднее значение: "+String.valueOf((int)longAvg));
+    }
+
+    public void setTextNowAVG() {
+        if(longAvg!=0) {
+            if (nowAvg - longAvg > 800) {
+                textNowAVG.setTextColor(Color.RED);
+            } else {
+                textNowAVG.setTextColor(Color.GREEN);
+            }
+        }
+        textNowAVG.setText("Текущее значение: "+String.valueOf((int)nowAvg));
     }
 
     public void setData(double data){
@@ -85,13 +121,22 @@ public class SerialStart implements Serializable {
                     return;
                 }
                 i++;
-                series.appendData(new DataPoint(i, point), true, 10000);
+                if(point>0.25){
+                    seriesSplash.appendData(new DataPoint(i, point), true, 10000);
+                }
+                else {
+                    seriesNormal.appendData(new DataPoint(i, point), true, 10000);
+                }
+
                 if (bind) {
                     graph.getViewport().setMinY(point - minBind);
                     graph.getViewport().setMaxY(point + maxBind);
                 }
 
-                series.setOnDataPointTapListener(new OnDataPointTapListener() {
+                setTextLongAVG();
+                setTextNowAVG();
+
+                seriesNormal.setOnDataPointTapListener(new OnDataPointTapListener() {
                     @Override
                     public void onTap(Series series, DataPointInterface dataPoint) {
                         pointCount = loadCountLable();
@@ -106,7 +151,7 @@ public class SerialStart implements Serializable {
                     }
                 });
 
-                mHandler.postDelayed(this, 5);
+                mHandler.postDelayed(this, 0);
                 if (recFlag) {
                     lineRecoding.writeFile(String.format("%.4f", point) + " " + String.valueOf(i) + "\n");
                     pointCount = 0;

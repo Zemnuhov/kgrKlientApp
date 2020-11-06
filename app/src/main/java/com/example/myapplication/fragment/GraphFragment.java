@@ -29,39 +29,39 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GraphFragment extends Fragment {
-
     Context context;
     FloatingActionButton startRec;
     FloatingActionButton settingButton;
     ConnectBluetooth connectDevice;
     boolean recFlag;
-    int colorCount;
     OutputStreamWriter writerLine;
     OutputStreamWriter writerPoint;
     SerialStart serialStart;
     RecodingFileClass lineRecoding;
     RecodingFileClass pointRecoding;
     GraphView graph;
+    TextView longAVG;
+    TextView nowAVG;
 
 
     public static GraphFragment newInstance(Context context, ConnectBluetooth connectDevice) {
         GraphFragment fragment = new GraphFragment();
-        Bundle args = new Bundle();
         fragment.connectDevice=connectDevice;
         fragment.context=context;
         return fragment;
     }
 
     private void setBeginSettingGraph(GraphView graph){
-        //graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(255);
-        //graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setYAxisBoundsManual(true);
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinY(-1);
+        graph.getViewport().setMaxY(1);
         graph.getViewport().setScalable(true);
         graph.getViewport().setScrollable(true);
-        graph.getViewport().setScalableY(true);
-        graph.getViewport().setScrollableY(true);
-        graph.setBackgroundResource(R.drawable.shape);
+        graph.getViewport().setScalableY(false);
+        graph.getViewport().setScrollableY(false);
+
+        graph.setBackgroundColor(Color.WHITE);
         graph.getGridLabelRenderer().setGridColor(Color.WHITE);
     }
 
@@ -69,18 +69,19 @@ public class GraphFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.graph_fragment, container, false);
 
+        recFlag=false;
+
+
+        longAVG=view.findViewById(R.id.long_avg);
+        nowAVG=view.findViewById(R.id.now_avg);
         startRec=view.findViewById(R.id.start_rec_and_stop);
         settingButton=view.findViewById(R.id.setting_button);
-
-        recFlag=false;
-        colorCount=0;
-
         graph = (GraphView) view.findViewById(R.id.graph);
         setBeginSettingGraph(graph);
 
         FragmentManager childManager=getChildFragmentManager();
 
-        serialStart=new SerialStart(graph,connectDevice,context,childManager);
+        serialStart=new SerialStart(graph,connectDevice,context,childManager,longAVG,nowAVG);
         serialStart.threadGraph();
 
         lineRecoding=new RecodingFileClass(context,serialStart,writerLine);

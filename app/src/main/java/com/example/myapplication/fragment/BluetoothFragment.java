@@ -53,18 +53,18 @@ public class BluetoothFragment extends Fragment {
     public static BluetoothFragment newInstance(Context context) {
         BluetoothFragment fragment = new BluetoothFragment();
         Bundle args = new Bundle();
-        fragment.context=context;
-        fragment.connectState=0;
+        fragment.context = context;
+        fragment.connectState = 0;
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view=inflater.inflate(R.layout.bluetooth_list_fragmet, container, false);
-        refreshButton=view.findViewById(R.id.refresh_button);
-        bluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
-        deviceList=view.findViewById(R.id.list_connection);
+        view = inflater.inflate(R.layout.bluetooth_list_fragmet, container, false);
+        refreshButton = view.findViewById(R.id.refresh_button);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        deviceList = view.findViewById(R.id.list_connection);
 
         myUUID = UUID.fromString(UUID_STRING_WELL_KNOWN_SPP);
 
@@ -76,51 +76,52 @@ public class BluetoothFragment extends Fragment {
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context,"Обновляем...",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Обновляем...", Toast.LENGTH_SHORT).show();
                 availableBluetooth();
 
             }
         });
         return view;
     }
-    private void availableBluetooth(){
-        Set<BluetoothDevice> availableDevice=bluetoothAdapter.getBondedDevices();
-        if(availableDevice.size()>0){
-            availlableBluetoothList=new ArrayList<>();
-            for(BluetoothDevice device:availableDevice){
-                availlableBluetoothList.add(device.getName()+"\n"+device.getAddress());
+
+    private void availableBluetooth() {
+        Set<BluetoothDevice> availableDevice = bluetoothAdapter.getBondedDevices();
+        if (availableDevice.size() > 0) {
+            availlableBluetoothList = new ArrayList<>();
+            for (BluetoothDevice device : availableDevice) {
+                availlableBluetoothList.add(device.getName() + "\n" + device.getAddress());
             }
-            availlableBluetoothAdapter=new ArrayAdapter(context, layout.simple_list_item_1,
+            availlableBluetoothAdapter = new ArrayAdapter(context, layout.simple_list_item_1,
                     availlableBluetoothList);
             deviceList.setAdapter(availlableBluetoothAdapter);
             deviceList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String  itemValue = (String) deviceList.getItemAtPosition(position);
+                    String itemValue = (String) deviceList.getItemAtPosition(position);
                     String MAC = itemValue.substring(itemValue.length() - 17); // Вычленяем MAC-адрес
                     BluetoothDevice device = bluetoothAdapter.getRemoteDevice(MAC);
 
-                    connectBluetooth =new ConnectBluetooth(device);
+                    connectBluetooth = new ConnectBluetooth(device);
                     connectBluetooth.start();
-                    Log.i("stateBT",String.valueOf(connectBluetooth.getSuccess()));
+                    Log.i("stateBT", String.valueOf(connectBluetooth.getSuccess()));
 
-                    waitConnectThread=new Runnable() {
+                    waitConnectThread = new Runnable() {
                         @Override
                         public void run() {
-                            while(true){
-                                Log.i("stateBT",String.valueOf(connectBluetooth.getSuccess()));
-                                if(connectBluetooth.getSuccess()== Constants.CONNECT_BT_ERROR){
-                                    Toast.makeText(context,"Соединение не удалось!",Toast.LENGTH_LONG).show();
-                                    Log.i("stateBT",String.valueOf(connectBluetooth.getSuccess()));
+                            while (true) {
+                                Log.i("stateBT", String.valueOf(connectBluetooth.getSuccess()));
+                                if (connectBluetooth.getSuccess() == Constants.CONNECT_BT_ERROR) {
+                                    Toast.makeText(context, "Соединение не удалось!", Toast.LENGTH_LONG).show();
+                                    Log.i("stateBT", String.valueOf(connectBluetooth.getSuccess()));
                                     break;
                                 }
-                                if(connectBluetooth.getSuccess()==Constants.SUCCESS_CONNECT_BT){
-                                    GraphFragment graphFragment=GraphFragment.newInstance(context,connectBluetooth);
-                                    FragmentTransaction transaction=getFragmentManager().beginTransaction();
+                                if (connectBluetooth.getSuccess() == Constants.SUCCESS_CONNECT_BT) {
+                                    GraphFragment graphFragment = GraphFragment.newInstance(context, connectBluetooth);
+                                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
                                     transaction.replace(R.id.fragmentOne, graphFragment);
                                     transaction.addToBackStack(null);
                                     transaction.commit();
-                                    Log.i("stateBT",String.valueOf(connectBluetooth.getSuccess()));
+                                    Log.i("stateBT", String.valueOf(connectBluetooth.getSuccess()));
                                     break;
                                 }
                             }

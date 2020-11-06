@@ -24,16 +24,22 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
         <TextView
+            android:id="@+id/long_avg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Среднее значение:"
-            android:textSize="20dp"/>
+            android:textSize="20dp"
+            android:layout_margin="10dp"
+            android:textColor="#000000"/>
         <TextView
+            android:id="@+id/now_avg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Текущее значение:"
             android:textSize="20dp"
-            android:layout_marginTop="30dp"/>
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="10dp"
+            android:textColor="#000000"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/setting_button"

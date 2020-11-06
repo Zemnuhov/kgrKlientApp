@@ -30,11 +30,11 @@ public class ThreadConnectedGetData extends Thread {    // Поток - приё
     private ArrayList<Double> phasicArray = new ArrayList<>();
     private ArrayList<Double> avgPhasicArrayFirst = new ArrayList<>();
     private ArrayList<Double> avgPhasicArraySecond = new ArrayList<>();
-    double mean;
+    private ArrayList<Double> avgNow = new ArrayList<>();
+    private ArrayList<Double> tonicSample = new ArrayList<>();
     private double temp;
-    private byte mode;
+    private double tempTonic;
 
-    int count;
     Context context;
     Date date;
     Date dateAvg;
@@ -43,18 +43,15 @@ public class ThreadConnectedGetData extends Thread {    // Поток - приё
     long timeAvgDelay;
 
 
-
     public ThreadConnectedGetData(BluetoothSocket socket, SerialStart serialStart, Context context) {
-        this.serialStart=serialStart;
-        date=new Date();
-        time=date.getTime();
-        timeAvg=date.getTime();
-        timeAvgDelay=date.getTime();
-        mode=0;
-        temp=0;
-        count=0;
-        this.context=context;
-        mean=127;
+        this.serialStart = serialStart;
+        date = new Date();
+        time = date.getTime();
+        timeAvg = date.getTime();
+        timeAvgDelay = date.getTime();
+        temp = 0;
+        tempTonic = 0;
+        this.context = context;
 
         InputStream in = null;
         OutputStream out = null;
@@ -82,16 +79,11 @@ public class ThreadConnectedGetData extends Thread {    // Поток - приё
                 if (endOfLineIndex > 0) {
                     sbprint = sb.substring(0, endOfLineIndex);
                     sb.delete(0, sb.length());
+                    tonicAndPhasicResponse();
+                    phasicResponse();
 
-                   switch (mode){
-                       case 0:
-                           tonicAndPhasicResponse();
-                           break;
-                       case 1:
-                           phasicResponse();
-                           break;
-                   }
                 }
+
             } catch (IOException e) {
                 serialStart.setConnectFlag(false);
                 break;
@@ -99,11 +91,7 @@ public class ThreadConnectedGetData extends Thread {    // Поток - приё
         }
     }
 
-    public void setMode(byte mode) {
-        this.mode = mode;
-    }
-
-    private void phasicResponse(){
+    private void phasicResponse() {
         if (dataSample.size() < 400) {
             temp = Double.parseDouble(sbprint);
             dataSample.add(temp);
@@ -112,86 +100,97 @@ public class ThreadConnectedGetData extends Thread {    // Поток - приё
                 temp += num;
             }
             temp /= dataSample.size();
-            temp = 12000 - temp;
             resultSample.add(temp);
-            if(resultSample.size()>1){
-                data=(resultSample.get(1)-resultSample.get(0))/2;
+            if (resultSample.size() > 1) {
+                data = (resultSample.get(1) - resultSample.get(0)) / 2;
                 //serialStart.setData(data);
                 resultSecondSample.add(data);
                 resultSample.remove(0);
             }
-            System.out.println(temp);
             dataSample.remove(0);
             temp = 0;
         }
-        if(resultSecondSample.size()>=300){
-            for (double num:resultSecondSample) {
-                temp+=num;
+        if (resultSecondSample.size() >= 300) {
+            for (double num : resultSecondSample) {
+                temp += num;
             }
-            temp/=resultSecondSample.size();
+            temp /= resultSecondSample.size();
             serialStart.setData(temp);
             phasicArray.add(temp);
-            if(temp>0.25){
+            if (temp > 0.25) {
                 notifi();
             }
             resultSecondSample.remove(0);
         }
     }
 
-    private void avgTonicResponse(){
-        dateAvg=new Date();
-        if(dateAvg.getTime()-timeAvg>5000 && dateAvg.getTime()-timeAvgDelay>100){
-            timeAvgDelay=dateAvg.getTime();
-            avgPhasicArrayFirst.add(data);
+    private void avgRightNow(double v) {
+        avgNow.add(v);
+        double summ = 0;
+        if (avgNow.size() >= 1000) {
+            for (double num : avgNow) {
+                summ += num;
+            }
+            summ /= avgNow.size();
+            System.out.println(summ);
+            serialStart.setNowAvg(summ);
+            System.out.println(123);
+            Log.i("now", String.valueOf(summ));
+            avgNow.remove(0);
+        }
+    }
 
-            if(avgPhasicArrayFirst.size()>=1000) {
+    private void avgTonicResponse(double v) {
+        dateAvg = new Date();
+        if (dateAvg.getTime() - timeAvg > 5000 && dateAvg.getTime() - timeAvgDelay > 100) {
+            timeAvgDelay = dateAvg.getTime();
+            avgPhasicArrayFirst.add(v);
+            if (avgPhasicArrayFirst.size() >= 1000) {
                 double summ = 0;
                 for (double num : avgPhasicArrayFirst) {
                     summ += num;
                 }
                 summ /= avgPhasicArrayFirst.size();
                 avgPhasicArraySecond.add(summ);
-                Log.i("first",String.valueOf(summ));
                 avgPhasicArrayFirst.remove(0);
-                Log.i("vg0", String.valueOf(summ));
-                summ = 0;
-                Log.i("second",String.valueOf(avgPhasicArraySecond.size()));
+
                 if (avgPhasicArraySecond.size() >= 3800) {
+                    summ = 0;
                     for (double num : avgPhasicArraySecond) {
                         summ += num;
                     }
                     summ /= avgPhasicArraySecond.size();
-
+                    serialStart.setLongAvg(summ);
                     avgPhasicArraySecond.remove(0);
-                    Log.i("avg", String.valueOf(summ));
+                } else {
+                    serialStart.setLongAvg(summ);
+                    Log.i("perLong", String.valueOf(summ));
                 }
             }
         }
     }
 
-    private void tonicAndPhasicResponse(){
-        if (dataSample.size() < 500) {
-            temp += Double.parseDouble(sbprint);
-            dataSample.add(temp);
+    private void tonicAndPhasicResponse() {
+        if (tonicSample.size() < 500) {
+            tempTonic += Double.parseDouble(sbprint);
+            tonicSample.add(tempTonic);
         } else {
-            for (Double num : dataSample) {
-                temp += num;
+            for (Double num : tonicSample) {
+                tempTonic += num;
             }
-            temp /= dataSample.size();
-            temp = 12000 - temp;
-            data = ((temp - 0) / (12000 - 0)) * (255 - 0);
-            serialStart.setData(data);
-            avgTonicResponse();
-            System.out.println(temp);
-            dataSample.remove(0);
-            temp = 0;
+            tempTonic /= tonicSample.size();
+            avgRightNow(tempTonic);
+            avgTonicResponse(tempTonic);
+
+            tonicSample.remove(0);
+            tempTonic = 0;
 
         }
     }
 
-    private void notifi(){
-        date=new Date();
-        if((long)date.getTime()-time>4000) {
+    private void notifi() {
+        date = new Date();
+        if ((long) date.getTime() - time > 4000) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "Stress")
                     .setSmallIcon(R.drawable.adjust)
                     .setContentTitle("textTitle")
@@ -209,7 +208,7 @@ public class ThreadConnectedGetData extends Thread {    // Поток - приё
             }
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
             notificationManager.notify(1, builder.build());
-            time=date.getTime();
+            time = date.getTime();
         }
     }
 
