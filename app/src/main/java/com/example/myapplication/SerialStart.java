@@ -44,7 +44,7 @@ public class SerialStart implements Serializable {
     private FragmentManager childManager;
 
 
-    final PointsGraphSeries<DataPoint> seriesNormal = new PointsGraphSeries<>(new DataPoint[]{});
+    final LineGraphSeries<DataPoint> seriesNormal = new LineGraphSeries<>(new DataPoint[]{});
     final PointsGraphSeries<DataPoint> seriesSplash = new PointsGraphSeries<>(new DataPoint[]{});
     final PointsGraphSeries<DataPoint> seriesPoint = new PointsGraphSeries<>(new DataPoint[]{});
 
@@ -84,7 +84,7 @@ public class SerialStart implements Serializable {
         seriesSplash.setColor(Color.RED);
         seriesNormal.setColor(Color.BLACK);
         //seriesNormal.setThickness(8);
-        seriesNormal.setSize(8);
+        seriesNormal.setThickness(12);
         seriesPoint.setColor(Color.GRAY);
     }
 
@@ -124,9 +124,9 @@ public class SerialStart implements Serializable {
                 if(point>0.25){
                     seriesSplash.appendData(new DataPoint(i, point), true, 10000);
                 }
-                else {
-                    seriesNormal.appendData(new DataPoint(i, point), true, 10000);
-                }
+
+                seriesNormal.appendData(new DataPoint(i, point), true, 10000);
+
 
                 if (bind) {
                     graph.getViewport().setMinY(point - minBind);
@@ -151,7 +151,7 @@ public class SerialStart implements Serializable {
                     }
                 });
 
-                mHandler.postDelayed(this, 0);
+                mHandler.postDelayed(this, 10);
                 if (recFlag) {
                     lineRecoding.writeFile(String.format("%.4f", point) + " " + String.valueOf(i) + "\n");
                     pointCount = 0;
